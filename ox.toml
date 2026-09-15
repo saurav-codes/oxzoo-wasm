@@ -1,0 +1,36 @@
+# ox deploy manifest for oxzoo-wasm.
+# go builds both the native API server and the GOOS=js wasm module; nginx
+# serves public/ statically (spa = true) while proxying /api and /health.
+
+name = "oxzoo-wasm"
+branch = "main"
+runtime = "go"
+framework = "generic"
+package_manager = ""
+port = 9115
+environment_file = "/etc/ox/apps/oxzoo-wasm.env"
+required_packages = ["go"]
+
+[[processes]]
+name = "web"
+command = "./server"
+readiness = "http://127.0.0.1:{port}/health"
+
+[deploy]
+# Each element runs as its own bash -c line in the release dir with the
+# project env (GREETING_TAG) loaded, so the wasm bake sees the build-time env.
+install = [
+  "go build -o server ./cmd/server",
+  "GOOS=js GOARCH=wasm go build -ldflags \"-X 'main.greeting=hello world oxzoo-wasm_$GREETING_TAG'\" -o public/greeting.wasm ./wasm",
+  "cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" public/wasm_exec.js",
+]
+health_url = "http://127.0.0.1:9115/health"
+
+[frontend]
+dist = "public"
+api_paths = ["/api", "/health"]
+
+[[domains]]
+name = "wasm.oxzoo.sorv.dev"
+tls = true
+spa = true
