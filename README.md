@@ -21,13 +21,13 @@ One variable, two paths:
 - **Runtime path (API):** `cmd/server/main.go` reads `os.Getenv("GREETING_TAG")` on each `/api/greeting` request, so a process restart with a new value changes the API line immediately.
 - **Build-time path (wasm):** `wasm/main.go` declares the package-level variable `var greeting = "hello world oxzoo-wasm_dev"`, and the install hook builds with `-ldflags "-X 'main.greeting=hello world oxzoo-wasm_$GREETING_TAG'"`, baking the full greeting as one contiguous string into `public/greeting.wasm`. The quoting matters: the double quotes keep the value as a single `-ldflags` argument, and the single quotes keep the spaces intact inside the `-X` value. The wasm module never reads env at runtime, so a new tag requires a redeploy.
 
-**`PORT`** is injected by the platform into the process environment (`environment_file`); `cmd/server/main.go` reads it with `os.Getenv("PORT")` and defaults to `9115`.
+**`PORT`** is injected by the platform into the process environment (the project's env file, `/srv/ox/oxzoo-wasm/env`); `cmd/server/main.go` reads it with `os.Getenv("PORT")` and defaults to `9115`.
 
 **Set `GREETING_TAG` in the ox Environment editor BEFORE the first deploy.** The wasm string is baked during the deploy build step, so changing it later requires a redeploy; the API value updates as soon as the process restarts. `.env.example` documents the variable with a placeholder; real values live in the ox dashboard, never in git.
 
 ## Deploy with ox
 
-1. Add the repo in the ox dashboard: paste the clone URL `https://github.com/saurav-codes/oxzoo-wasm`.
+1. Add the repo in the ox dashboard: paste the clone URL `git@github.com:saurav-codes/oxzoo-wasm`.
 2. In the Environment editor, set `GREETING_TAG` (for example `w3-01`).
 3. Press **Deploy**. ox runs the three install hooks, starts `./server`, and waits for `http://127.0.0.1:9115/health` to return `ok`.
 
