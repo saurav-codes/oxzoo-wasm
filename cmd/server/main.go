@@ -1,4 +1,4 @@
-// oxzoo-wasm API: stdlib-only server behind nginx. GREETING_TAG is read at
+// oxzoo-wasm API: stdlib-only server that also serves public/. GREETING_TAG is read at
 // runtime; the wasm module's copy is baked at build time (see ox.toml).
 package main
 
