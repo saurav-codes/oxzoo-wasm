@@ -1,5 +1,7 @@
 # oxzoo-wasm
 
+Deployed with [ox](https://deploywithox.com): deploy a repo to your own server with one command, no Docker. [Docs](https://deploywithox.com/docs) · [Stack guides](https://deploywithox.com/docs/guides)
+
 An official ox deploy example: the page's greeting is computed inside a WebAssembly module compiled from Go (`GOOS=js GOARCH=wasm`), backed by a tiny stdlib-only Go API server. ox runs the install hooks in the release directory — one `go build` for the native server, one cross-compile for the wasm module with the greeting baked in via `-ldflags -X`, and a copy of the toolchain's `wasm_exec.js` glue — starts the compiled `./server` binary as a systemd process bound to `127.0.0.1:9115`, and configures nginx to serve `public/` statically while proxying only `/api` and `/health` to the Go process. Everything is driven by one `ox.toml` manifest at the repo root.
 
 ## Stack
